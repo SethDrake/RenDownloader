@@ -33,8 +33,8 @@
             this.btnSelectSaveDir = new System.Windows.Forms.Button();
             this.txtEpisodeUrls = new System.Windows.Forms.TextBox();
             this.lblUrls = new System.Windows.Forms.Label();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.txtStartDownload = new System.Windows.Forms.Button();
+            this.progress = new System.Windows.Forms.ProgressBar();
+            this.btnDownload = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblSaveTo
@@ -67,6 +67,9 @@
             // 
             // txtEpisodeUrls
             // 
+            this.txtEpisodeUrls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtEpisodeUrls.Location = new System.Drawing.Point(17, 76);
             this.txtEpisodeUrls.Multiline = true;
             this.txtEpisodeUrls.Name = "txtEpisodeUrls";
@@ -82,29 +85,30 @@
             this.lblUrls.TabIndex = 4;
             this.lblUrls.Text = "Episodes:";
             // 
-            // progressBar1
+            // progress
             // 
-            this.progressBar1.Location = new System.Drawing.Point(100, 258);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(281, 23);
-            this.progressBar1.TabIndex = 5;
+            this.progress.Location = new System.Drawing.Point(100, 258);
+            this.progress.Name = "progress";
+            this.progress.Size = new System.Drawing.Size(281, 23);
+            this.progress.TabIndex = 5;
             // 
-            // txtStartDownload
+            // btnDownload
             // 
-            this.txtStartDownload.Location = new System.Drawing.Point(17, 258);
-            this.txtStartDownload.Name = "txtStartDownload";
-            this.txtStartDownload.Size = new System.Drawing.Size(75, 23);
-            this.txtStartDownload.TabIndex = 6;
-            this.txtStartDownload.Text = "Download";
-            this.txtStartDownload.UseVisualStyleBackColor = true;
+            this.btnDownload.Location = new System.Drawing.Point(17, 258);
+            this.btnDownload.Name = "btnDownload";
+            this.btnDownload.Size = new System.Drawing.Size(75, 23);
+            this.btnDownload.TabIndex = 6;
+            this.btnDownload.Text = "Download";
+            this.btnDownload.UseVisualStyleBackColor = true;
+            this.btnDownload.Click += new System.EventHandler(this.txtStartDownload_Click);
             // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(398, 298);
-            this.Controls.Add(this.txtStartDownload);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.btnDownload);
+            this.Controls.Add(this.progress);
             this.Controls.Add(this.lblUrls);
             this.Controls.Add(this.txtEpisodeUrls);
             this.Controls.Add(this.btnSelectSaveDir);
@@ -124,8 +128,8 @@
         private System.Windows.Forms.Button btnSelectSaveDir;
         private System.Windows.Forms.TextBox txtEpisodeUrls;
         private System.Windows.Forms.Label lblUrls;
-        private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.Button txtStartDownload;
+        private System.Windows.Forms.ProgressBar progress;
+        private System.Windows.Forms.Button btnDownload;
     }
 }
 
