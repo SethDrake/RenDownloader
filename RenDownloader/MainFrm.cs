@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace RenDownloader
 {
     public partial class MainFrm : Form
     {
+        private Thread downloadThread = null;
+
         public MainFrm()
         {
             InitializeComponent();
@@ -27,17 +30,30 @@ namespace RenDownloader
         private void txtStartDownload_Click(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(txtEpisodeUrls.Text) || String.IsNullOrEmpty(txtSavePath.Text)) return;
+
+            if (downloadThread != null)
+            {
+                downloadThread.Abort();
+                UpdateBtn("Download");
+                Application.DoEvents();
+                return;
+            }
+
             progress.Value = 0;
-            btnDownload.Text = "Stop";
-            downloadFiles(txtSavePath.Text);
-            btnDownload.Text = "Download";
+            UpdateBtn("Stop");
+            Application.DoEvents();
+
+            downloadThread = new Thread(new ThreadStart(downloadFiles));
+            downloadThread.Start();
         }
 
-        private void downloadFiles(String saveTo)
+        private void downloadFiles()
         {
+            String saveTo = txtSavePath.Text;
             List<String> chunkUrls = prepareEpisodesChunkUrls(); 
             if (chunkUrls.Count == 0) return;
             int incPerChunk = 100 / chunkUrls.Count;
+            float progr = 0;
             if (!Directory.Exists(saveTo))
             {
                 Directory.CreateDirectory(saveTo);
@@ -50,13 +66,17 @@ namespace RenDownloader
                     Directory.CreateDirectory(epDir);
                 }
                 List<String> fileNames = downloadAndProcessChunklist(chunkUrls[i]);
+                float incPerFile = incPerChunk * 1.0f / fileNames.Count;
                 foreach (var fileName in fileNames)
                 {
                     downloadFileToFolder(chunkUrls[i].Replace("chunklist.m3u8", fileName), epDir);
+                    progr += incPerFile;
+                    UpdateProgress((int)Math.Round(progr));
                 }
-                progress.Value += incPerChunk;
             }
-            progress.Value = 100;
+            UpdateProgress(100);
+            UpdateBtn("Download");
+            Application.DoEvents();
         }
 
         private List<String> prepareEpisodesChunkUrls()
@@ -106,6 +126,30 @@ namespace RenDownloader
             {
                 webClient.DownloadFile(url, saveToPath + "\\" + fileName);
             }
+        }
+
+        private delegate void UpdateProgressDelegate(int progr);
+        private void UpdateProgress(int progr)
+        {
+            if (this.progress.InvokeRequired)
+            {
+                this.Invoke(new UpdateProgressDelegate(this.UpdateProgress), new object[] { progr });
+                return;
+            }
+
+            this.progress.Value = progr;
+        }
+
+        private delegate void UpdateBtnDelegate(String text);
+        private void UpdateBtn(String text)
+        {
+            if (this.btnDownload.InvokeRequired)
+            {
+                this.Invoke(new UpdateBtnDelegate(this.UpdateBtn), new object[] { text });
+                return;
+            }
+
+            this.btnDownload.Text = text;
         }
     }
 }
