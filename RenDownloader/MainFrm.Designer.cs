@@ -73,8 +73,10 @@
             this.txtEpisodeUrls.Location = new System.Drawing.Point(17, 76);
             this.txtEpisodeUrls.Multiline = true;
             this.txtEpisodeUrls.Name = "txtEpisodeUrls";
+            this.txtEpisodeUrls.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtEpisodeUrls.Size = new System.Drawing.Size(364, 175);
             this.txtEpisodeUrls.TabIndex = 3;
+            this.txtEpisodeUrls.WordWrap = false;
             // 
             // lblUrls
             // 
@@ -114,6 +116,9 @@
             this.Controls.Add(this.btnSelectSaveDir);
             this.Controls.Add(this.txtSavePath);
             this.Controls.Add(this.lblSaveTo);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "MainFrm";
             this.Text = "Ren Downloader";
             this.ResumeLayout(false);
