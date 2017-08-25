@@ -110,7 +110,6 @@
             // 
             this.txtNumberSeed.Location = new System.Drawing.Point(335, 27);
             this.txtNumberSeed.Name = "txtNumberSeed";
-            this.txtNumberSeed.ReadOnly = true;
             this.txtNumberSeed.Size = new System.Drawing.Size(46, 20);
             this.txtNumberSeed.TabIndex = 7;
             this.txtNumberSeed.Text = "1";
