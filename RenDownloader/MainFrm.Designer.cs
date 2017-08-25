@@ -35,6 +35,8 @@
             this.lblUrls = new System.Windows.Forms.Label();
             this.progress = new System.Windows.Forms.ProgressBar();
             this.btnDownload = new System.Windows.Forms.Button();
+            this.txtNumberSeed = new System.Windows.Forms.TextBox();
+            this.lblNumberSeed = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // lblSaveTo
@@ -51,13 +53,13 @@
             this.txtSavePath.Location = new System.Drawing.Point(17, 27);
             this.txtSavePath.Name = "txtSavePath";
             this.txtSavePath.ReadOnly = true;
-            this.txtSavePath.Size = new System.Drawing.Size(327, 20);
+            this.txtSavePath.Size = new System.Drawing.Size(232, 20);
             this.txtSavePath.TabIndex = 1;
             // 
             // btnSelectSaveDir
             // 
             this.btnSelectSaveDir.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnSelectSaveDir.Location = new System.Drawing.Point(348, 27);
+            this.btnSelectSaveDir.Location = new System.Drawing.Point(251, 27);
             this.btnSelectSaveDir.Name = "btnSelectSaveDir";
             this.btnSelectSaveDir.Size = new System.Drawing.Size(33, 20);
             this.btnSelectSaveDir.TabIndex = 2;
@@ -104,11 +106,31 @@
             this.btnDownload.UseVisualStyleBackColor = true;
             this.btnDownload.Click += new System.EventHandler(this.txtStartDownload_Click);
             // 
+            // txtNumberSeed
+            // 
+            this.txtNumberSeed.Location = new System.Drawing.Point(335, 27);
+            this.txtNumberSeed.Name = "txtNumberSeed";
+            this.txtNumberSeed.ReadOnly = true;
+            this.txtNumberSeed.Size = new System.Drawing.Size(46, 20);
+            this.txtNumberSeed.TabIndex = 7;
+            this.txtNumberSeed.Text = "1";
+            // 
+            // lblNumberSeed
+            // 
+            this.lblNumberSeed.AutoSize = true;
+            this.lblNumberSeed.Location = new System.Drawing.Point(290, 31);
+            this.lblNumberSeed.Name = "lblNumberSeed";
+            this.lblNumberSeed.Size = new System.Drawing.Size(45, 13);
+            this.lblNumberSeed.TabIndex = 8;
+            this.lblNumberSeed.Text = "First Ep:";
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(398, 298);
+            this.Controls.Add(this.lblNumberSeed);
+            this.Controls.Add(this.txtNumberSeed);
             this.Controls.Add(this.btnDownload);
             this.Controls.Add(this.progress);
             this.Controls.Add(this.lblUrls);
@@ -135,6 +157,8 @@
         private System.Windows.Forms.Label lblUrls;
         private System.Windows.Forms.ProgressBar progress;
         private System.Windows.Forms.Button btnDownload;
+        private System.Windows.Forms.TextBox txtNumberSeed;
+        private System.Windows.Forms.Label lblNumberSeed;
     }
 }
 

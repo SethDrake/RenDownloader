@@ -58,9 +58,11 @@ namespace RenDownloader
             {
                 Directory.CreateDirectory(saveTo);
             }
+            int startSeed = 1;
+            Int32.TryParse(txtNumberSeed.Text, out startSeed);
             for (int i = 0; i < chunkUrls.Count; i++)
             {
-                String epDir = saveTo + "\\" + "episode" + (i + 1);
+                String epDir = saveTo + "\\" + "episode" + (i + startSeed);
                 if (!Directory.Exists(epDir))
                 {
                     Directory.CreateDirectory(epDir);
