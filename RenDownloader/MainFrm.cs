@@ -171,7 +171,7 @@ namespace RenDownloader
         {
             String arguments = "";
             arguments += "-i \"concat:" + string.Join("|", fileNames);
-            arguments += "\" -s 720x576 -c:v mpeg4 -vtag xvid -b:v 1500k -c:a mp3 -ar 44100 -ac 2 " + resultFileName;
+            arguments += "\" -s 720x576 -c:v mpeg4 -vtag xvid -b:v 900k -c:a mp3 -ar 44100 -ac 2 " + resultFileName;
             var output = new StringBuilder();
             ProcessStartInfo encoder = new ProcessStartInfo();
             encoder.Arguments = arguments;
