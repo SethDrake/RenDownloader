@@ -176,8 +176,8 @@ namespace RenDownloader
             ProcessStartInfo encoder = new ProcessStartInfo();
             encoder.Arguments = arguments;
             encoder.FileName = ffmpegPath;
-            encoder.WindowStyle = ProcessWindowStyle.Normal;
-            encoder.CreateNoWindow = false;
+            encoder.WindowStyle = ProcessWindowStyle.Hidden;
+            encoder.CreateNoWindow = true;
             encoder.RedirectStandardOutput = true;
             encoder.RedirectStandardError = true;
             encoder.UseShellExecute = false;
