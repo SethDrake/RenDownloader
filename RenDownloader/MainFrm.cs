@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -10,6 +12,8 @@ namespace RenDownloader
     public partial class MainFrm : Form
     {
         private Thread downloadThread = null;
+
+        private String ffmpegPath = "ffmpeg.exe";
 
         public MainFrm()
         {
@@ -34,6 +38,7 @@ namespace RenDownloader
             if (downloadThread != null)
             {
                 downloadThread.Abort();
+                downloadThread = null;
                 UpdateBtn("Download");
                 Application.DoEvents();
                 return;
@@ -43,15 +48,21 @@ namespace RenDownloader
             UpdateBtn("Stop");
             Application.DoEvents();
 
-            downloadThread = new Thread(new ThreadStart(downloadFiles));
+            List<List<String>> chunks = new List<List<string>>();
+            downloadThread = new Thread(() =>
+            {
+                chunks = downloadFiles();
+                encodeFiles(chunks);
+            });
             downloadThread.Start();
         }
 
-        private void downloadFiles()
+        private List<List<String>> downloadFiles()
         {
             String saveTo = txtSavePath.Text;
+            var chunks = new List<List<String>>(); 
             List<String> chunkUrls = prepareEpisodesChunkUrls(); 
-            if (chunkUrls.Count == 0) return;
+            if (chunkUrls.Count == 0) return chunks;
             int incPerChunk = 100 / chunkUrls.Count;
             float progr = 0;
             if (!Directory.Exists(saveTo))
@@ -68,13 +79,37 @@ namespace RenDownloader
                     Directory.CreateDirectory(epDir);
                 }
                 List<String> fileNames = downloadAndProcessChunklist(chunkUrls[i]);
+
                 float incPerFile = incPerChunk * 1.0f / fileNames.Count;
+                List<String> localChunks = new List<string>();
                 foreach (var fileName in fileNames)
                 {
-                    downloadFileToFolder(chunkUrls[i].Replace("chunklist.m3u8", fileName), epDir);
+                    String file = downloadFileToFolder(chunkUrls[i].Replace("chunklist.m3u8", fileName), epDir);
+                    localChunks.Add(file);
                     progr += incPerFile;
                     UpdateProgress((int)Math.Round(progr));
                 }
+                chunks.Add(localChunks);
+            }
+            UpdateProgress(100);
+            UpdateBtn("Encoding");
+            Application.DoEvents();
+            return chunks;
+        }
+
+        private void encodeFiles(List<List<String>> fileNames)
+        {
+            String saveTo = txtSavePath.Text;
+            int incPerEpisode = 100 / fileNames.Count;
+            float progr = 0;
+            int startSeed = 1;
+            Int32.TryParse(txtNumberSeed.Text, out startSeed);
+            for (int i = 0; i < fileNames.Count; i++)
+            {
+                String episodeName = saveTo + "\\" + "episode_" + (i + startSeed) + ".avi";
+                encodeChunksToFile(fileNames[i], episodeName);
+                progr += incPerEpisode;
+                UpdateProgress((int)Math.Round(progr));
             }
             UpdateProgress(100);
             UpdateBtn("Download");
@@ -121,12 +156,41 @@ namespace RenDownloader
             return names;
         }
 
-        private void downloadFileToFolder(String url, String saveToPath)
+        private String downloadFileToFolder(String url, String saveToPath)
         {
             String fileName = Path.GetFileName(url);
+            String fullFileName = saveToPath + "\\" + fileName;
             using (var webClient = new WebClient())
             {
-                webClient.DownloadFile(url, saveToPath + "\\" + fileName);
+                webClient.DownloadFile(url, fullFileName);
+            }
+            return fullFileName;
+        }
+
+        private void encodeChunksToFile(List<String> fileNames, String resultFileName)
+        {
+            String arguments = "";
+            arguments += "-i \"concat:" + string.Join("|", fileNames);
+            arguments += "\" -s 720x576 -c:v mpeg4 -vtag xvid -b:v 1500k -c:a mp3 -ar 44100 -ac 2 " + resultFileName;
+            var output = new StringBuilder();
+            ProcessStartInfo encoder = new ProcessStartInfo();
+            encoder.Arguments = arguments;
+            encoder.FileName = ffmpegPath;
+            encoder.WindowStyle = ProcessWindowStyle.Normal;
+            encoder.CreateNoWindow = false;
+            encoder.RedirectStandardOutput = true;
+            encoder.RedirectStandardError = true;
+            encoder.UseShellExecute = false;
+            using (Process proc = new Process())
+            {
+                proc.OutputDataReceived += (sender, args) => output.AppendLine(args.Data);
+                proc.ErrorDataReceived += (sender, args) => output.AppendLine(args.Data);
+                proc.StartInfo = encoder;
+
+                proc.Start();
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
+                proc.WaitForExit();
             }
         }
 
