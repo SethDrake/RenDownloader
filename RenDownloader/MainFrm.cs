@@ -104,6 +104,7 @@ namespace RenDownloader
             float progr = 0;
             int startSeed = 1;
             Int32.TryParse(txtNumberSeed.Text, out startSeed);
+            UpdateProgress(0);
             for (int i = 0; i < fileNames.Count; i++)
             {
                 String episodeName = saveTo + "\\" + "episode_" + (i + startSeed) + ".avi";
