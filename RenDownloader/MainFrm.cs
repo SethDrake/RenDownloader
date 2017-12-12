@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using HtmlAgilityPack;
 
 namespace RenDownloader
 {
     public partial class MainFrm : Form
     {
         private Thread downloadThread = null;
+
+        public static CookieContainer cookieContainer = new CookieContainer();
 
         private String ffmpegPath = "ffmpeg.exe";
 
@@ -20,6 +24,7 @@ namespace RenDownloader
             InitializeComponent();
         }
 
+      
         private void btnSelectSaveDir_Click(object sender, EventArgs e)
         {
             txtSavePath.Text = String.Empty;
@@ -48,20 +53,34 @@ namespace RenDownloader
             UpdateBtn("Stop");
             Application.DoEvents();
 
-            List<List<String>> chunks = new List<List<string>>();
-            downloadThread = new Thread(() =>
+            if (cbWebSite.Text == "ren.tv")
             {
-                chunks = downloadFiles();
-                encodeFiles(chunks);
-            });
-            downloadThread.Start();
+                List<List<String>> chunks = new List<List<string>>();
+                downloadThread = new Thread(() =>
+                {
+                    chunks = downloadRenTvFiles();
+                    encodeFiles(chunks);
+                });
+                downloadThread.Start();
+            }
+            else if (cbWebSite.Text == "kadu.ru")
+            {
+                List<List<String>> series = new List<List<String>>();
+                downloadThread = new Thread(() =>
+                {
+                    series = downloadKaduRuFiles();
+                    //encodeFiles(chunks);
+                });
+                downloadThread.SetApartmentState(ApartmentState.STA);
+                downloadThread.Start();
+            }
         }
 
-        private List<List<String>> downloadFiles()
+        private List<List<String>> downloadRenTvFiles()
         {
             String saveTo = txtSavePath.Text;
             var chunks = new List<List<String>>(); 
-            List<String> chunkUrls = prepareEpisodesChunkUrls(); 
+            List<String> chunkUrls = prepareRenTvEpisodesChunkUrls(); 
             if (chunkUrls.Count == 0) return chunks;
             int incPerChunk = 100 / chunkUrls.Count;
             float progr = 0;
@@ -97,6 +116,46 @@ namespace RenDownloader
             return chunks;
         }
 
+        private List<List<String>> downloadKaduRuFiles()
+        {
+            String saveTo = txtSavePath.Text;
+            var chunks = new List<List<String>>();
+            List<String> episodesUrls = prepareKaduRuSeriesUrls();
+            if (episodesUrls.Count == 0) return chunks;
+            int incPerChunk = 100 / episodesUrls.Count;
+            float progr = 0;
+            if (!Directory.Exists(saveTo))
+            {
+                Directory.CreateDirectory(saveTo);
+            }
+            int startSeed = 1;
+            Int32.TryParse(txtNumberSeed.Text, out startSeed);
+            for (int i = 0; i < episodesUrls.Count; i++)
+            {
+                String epDir = saveTo + "\\" + "episode" + (i + startSeed);
+                if (!Directory.Exists(epDir))
+                {
+                    Directory.CreateDirectory(epDir);
+                }
+                List<String> fileNames = downloadAndProcessKaduEpisodes(episodesUrls[i]);
+
+                float incPerFile = incPerChunk * 1.0f / fileNames.Count;
+                List<String> localChunks = new List<string>();
+                foreach (var fileName in fileNames)
+                {
+                    String file = downloadKaduVideoToFolder(fileName, epDir);
+                    localChunks.Add(file);
+                    progr += incPerFile;
+                    UpdateProgress((int)Math.Round(progr));
+                }
+                chunks.Add(localChunks);
+            }
+            UpdateProgress(100);
+            UpdateBtn("Encoding");
+            Application.DoEvents();
+            return chunks;
+        }
+
         private void encodeFiles(List<List<String>> fileNames)
         {
             String saveTo = txtSavePath.Text;
@@ -117,7 +176,7 @@ namespace RenDownloader
             Application.DoEvents();
         }
 
-        private List<String> prepareEpisodesChunkUrls()
+        private List<String> prepareRenTvEpisodesChunkUrls()
         {
             List<String> urls = new List<string>();
             if (String.IsNullOrEmpty(txtEpisodeUrls.Text)) return urls;
@@ -129,6 +188,25 @@ namespace RenDownloader
                     if (!url.StartsWith("http"))
                     {
                         url = "https://" + url;
+                    }
+                    urls.Add(url);
+                }
+            }
+            return urls;
+        }
+
+        private List<String> prepareKaduRuSeriesUrls()
+        {
+            List<String> urls = new List<string>();
+            if (String.IsNullOrEmpty(txtEpisodeUrls.Text)) return urls;
+            foreach (var line in txtEpisodeUrls.Lines)
+            {
+                if (!String.IsNullOrEmpty(line))
+                {
+                    String url = line.Replace("\\/", "/");
+                    if (!url.StartsWith("http"))
+                    {
+                        url = "http://" + url;
                     }
                     urls.Add(url);
                 }
@@ -155,6 +233,31 @@ namespace RenDownloader
                 }
             }
             return names;
+        }
+
+        private List<String> downloadAndProcessKaduEpisodes(String url)
+        {
+            HtmlWeb web = new HtmlWeb();
+            var htmlDoc = web.LoadFromBrowser(url);
+            var nodes = htmlDoc.DocumentNode.SelectNodes("//div[@id='video-line-content']/a");
+            return nodes.Select(x => "http://kadu.ru" + x.Attributes["href"].Value).ToList();
+        }
+
+        private String downloadKaduVideoToFolder(String url, String saveToPath)
+        {
+            HtmlWeb web = new HtmlWeb();
+            var htmlDoc = web.LoadFromBrowser(url);
+            var node = htmlDoc.DocumentNode.SelectSingleNode("//video[@id='video-flash']");
+            var videoUrl = node.Attributes["src"].Value;
+            var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//h1");
+            var title = titleNode.InnerHtml;
+            int t = title.IndexOf("</span>");
+            title = title.Substring(t, title.Length - t) + ".mp4";
+            using (var webClient = new WebClient())
+            {
+                webClient.DownloadFile(videoUrl, title);
+            }
+            return title;
         }
 
         private String downloadFileToFolder(String url, String saveToPath)

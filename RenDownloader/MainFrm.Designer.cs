@@ -37,6 +37,8 @@
             this.btnDownload = new System.Windows.Forms.Button();
             this.txtNumberSeed = new System.Windows.Forms.TextBox();
             this.lblNumberSeed = new System.Windows.Forms.Label();
+            this.cbWebSite = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // lblSaveTo
@@ -76,7 +78,7 @@
             this.txtEpisodeUrls.Multiline = true;
             this.txtEpisodeUrls.Name = "txtEpisodeUrls";
             this.txtEpisodeUrls.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtEpisodeUrls.Size = new System.Drawing.Size(364, 175);
+            this.txtEpisodeUrls.Size = new System.Drawing.Size(364, 174);
             this.txtEpisodeUrls.TabIndex = 3;
             this.txtEpisodeUrls.WordWrap = false;
             // 
@@ -123,11 +125,34 @@
             this.lblNumberSeed.TabIndex = 8;
             this.lblNumberSeed.Text = "First Ep:";
             // 
+            // cbWebSite
+            // 
+            this.cbWebSite.FormattingEnabled = true;
+            this.cbWebSite.Items.AddRange(new object[] {
+            "ren.tv",
+            "kadu.ru"});
+            this.cbWebSite.Location = new System.Drawing.Point(100, 287);
+            this.cbWebSite.Name = "cbWebSite";
+            this.cbWebSite.Size = new System.Drawing.Size(281, 21);
+            this.cbWebSite.TabIndex = 9;
+            this.cbWebSite.Text = "kadu.ru";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(33, 290);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(54, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "Web Site:";
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(398, 298);
+            this.ClientSize = new System.Drawing.Size(398, 317);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cbWebSite);
             this.Controls.Add(this.lblNumberSeed);
             this.Controls.Add(this.txtNumberSeed);
             this.Controls.Add(this.btnDownload);
@@ -158,6 +183,8 @@
         private System.Windows.Forms.Button btnDownload;
         private System.Windows.Forms.TextBox txtNumberSeed;
         private System.Windows.Forms.Label lblNumberSeed;
+        private System.Windows.Forms.ComboBox cbWebSite;
+        private System.Windows.Forms.Label label1;
     }
 }
 
